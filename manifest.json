@@ -8,9 +8,9 @@
   "description": "元素と共に生きる生命たちの記録",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "file_00000000ba7c720ba70f8bea4ae277a5.png",
+      "sizes": "512×512",
+      "type": "image/png"
     }
   ]
 }
