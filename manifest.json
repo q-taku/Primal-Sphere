@@ -1,0 +1,16 @@
+{
+  "name": "PrimalSphere 生物誌",
+  "short_name": "PrimalSphere",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6ecd6",
+  "theme_color": "#7b4b22",
+  "description": "元素と共に生きる生命たちの記録",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

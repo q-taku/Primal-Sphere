@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PrimalSphere 生物誌 v1.0</title>
+<style>
+:root{--paper:#f6ecd6;--paper2:#fff8e8;--ink:#2b2117;--muted:#6e604a;--line:#b79758;--accent:#7b4b22;--danger:#9b2d22}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif;background:linear-gradient(135deg,#241911,#4b321c,#201711)}
+.app{max-width:1180px;margin:0 auto;padding:16px}.book{min-height:94vh;background:linear-gradient(90deg,var(--paper),var(--paper2) 48%,#ead8b3 52%,var(--paper));border:2px solid #4d321c;border-radius:14px;box-shadow:0 18px 45px #0008;overflow:hidden}
+header{padding:22px 24px 12px;border-bottom:2px double var(--line)}h1{margin:0;font-size:34px}.sub{color:var(--muted)}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px;border-bottom:1px solid var(--line)}
+button,.filelabel{border:1px solid var(--accent);background:#fff0c9;color:var(--ink);padding:8px 12px;border-radius:8px;cursor:pointer;font-family:inherit}button:hover,.filelabel:hover{background:#ffe1a3}.primary{background:#d8a957}.danger{border-color:var(--danger);color:var(--danger)}
+main{padding:22px 24px}.hidden{display:none!important}.intro{white-space:pre-line;line-height:1.9;max-width:900px;background:#ffffff45;border-left:5px solid var(--accent);border-radius:10px;padding:18px}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:7px;background:#fffaf0;padding:8px;font-family:inherit}textarea{min-height:74px;resize:vertical}
+.toolbar{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-bottom:14px}.grid{display:grid;grid-template-columns:320px 1fr;gap:18px}.list{display:flex;flex-direction:column;gap:8px}
+.card,.panel{border:1px solid var(--line);border-radius:10px;background:#fffaf0aa;padding:11px}.card{cursor:pointer}.card:hover{background:#fff1cc}.name{font-weight:bold;font-size:18px}.meta,.small{color:var(--muted);font-size:13px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:8px;margin:7px 0}.section{border-top:1px dashed var(--line);margin-top:14px;padding-top:12px}.section h3{margin:0 0 8px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}.gallery,.regiongrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.gitem{border:1px solid var(--line);border-radius:10px;background:#fffaf0;padding:8px}.gitem img{width:100%;max-height:170px;object-fit:contain;border-radius:7px;background:#eee}.log{border-left:4px solid var(--accent);padding:8px 10px;margin:8px 0;background:#ffffff55}.tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin:2px;background:#fff1cd;font-size:13px}
+@media(max-width:800px){.grid,.toolbar,.formgrid{grid-template-columns:1fr}main{padding:16px}h1{font-size:28px}}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7b4b22">
+<link rel="apple-touch-icon" href="icon.svg">
+
+</head>
+<body><div class="app"><div class="book">
+<header><h1>PrimalSphere 生物誌</h1><div class="sub">元素と共に生きる生命たちの記録</div></header>
+<nav>
+<button onclick="page('home')">トップ</button><button onclick="page('creatures')">生物図鑑</button><button onclick="page('regions')">地域図鑑</button><button onclick="clearForm();page('editor')">生物追加</button>
+<button onclick="saveFile()">保存</button><label class="filelabel">読込<input type="file" accept="application/json" onchange="loadFile(event)" hidden></label>
+</nav>
+<main>
+<section id="home">
+<h2>PrimalSphere</h2>
+<div class="intro">この世界のあらゆる命は、四つの元素の循環の中で息づいている。
+
+火。
+水。
+土。
+風。
+
+それらは単なる自然現象ではない。
+大地を巡り、空を満たし、生物の肉体と魂にまで浸透する、世界の根源そのものである。
+
+生きとし生けるものは、食物や水のみならず、自らに適した元素を取り込みながら生命を維持する。
+そして体内に蓄えられた元素は、それぞれの種に固有の力として発現する。
+
+元素は生物ごとに異なる形で肉体へ刻まれ、それぞれ独自の能力として昇華される。
+
+さらに複数の元素を取り込む種も存在し、
+単一の元素では成し得ない特異な性質を獲得することもある。
+
+四大元素が織り成す生命の循環。
+無数の生物が築く生態系。
+そして未だ解き明かされていない世界の神秘。
+
+これは、元素と共に生きる生命たちの記録である。</div>
+<p class="small">登録生物数：<span id="cc"></span> / 登録地域数：<span id="rc"></span></p>
+</section>
+
+<section id="creatures" class="hidden">
+<div class="toolbar"><input id="search" oninput="renderList()" placeholder="検索"><button onclick="clearForm();page('editor')">新規追加</button><button onclick="saveFile()">保存</button></div>
+<div class="grid"><div id="list" class="list"></div><div id="detail" class="panel">左の一覧から生物を選択してください。</div></div>
+</section>
+
+<section id="regions" class="hidden">
+<h2>地域図鑑</h2><p class="small">生物の生息地から、生息生物一覧を自動生成します。</p><div id="regionList" class="regiongrid"></div>
+</section>
+
+<section id="editor" class="hidden">
+<h2>生物追加・編集</h2>
+<div class="formgrid">
+<div><label>名前 *</label><input id="f_name"></div><div><label>分類 *</label><input id="f_class"></div>
+<div><label>元素適性 *</label><input id="f_elem"></div><div><label>生息地 *（読点区切り）</label><input id="f_hab"></div>
+<div class="wide"><label>食性 *</label><input id="f_diet"></div>
+<div class="wide"><label>身体的構造</label><textarea id="f_body"></textarea></div>
+<div class="wide"><label>生態・習性</label><textarea id="f_eco"></textarea></div>
+<div class="wide"><label>能力</label><textarea id="f_abil"></textarea></div>
+<div class="wide"><label>関連生物</label><textarea id="f_rel"></textarea></div>
+<div class="wide"><label>備考</label><textarea id="f_note"></textarea></div>
+<div class="wide panel"><h3>資料ギャラリー</h3><div class="formgrid"><input id="g_title" placeholder="資料名"><input id="g_desc" placeholder="説明"><input id="g_file" type="file" accept="image/*"><button onclick="addGallery()">資料を追加</button></div><div id="g_edit" class="gallery"></div></div>
+<div class="wide panel"><h3>観察日記</h3><div class="formgrid"><input id="l_date" placeholder="日付"><input id="l_text" placeholder="記録"><button onclick="addLog()">記録を追加</button></div><div id="l_edit"></div></div>
+<div class="wide"><button class="primary" onclick="saveCreature()">保存/更新</button><button class="danger" onclick="delCreature()">削除</button><button onclick="clearForm()">入力をクリア</button></div>
+</div>
+</section>
+</main></div></div>
+<script>
+const init={creatures:[
+["ヴェントファング","熱獣種","火・風","噴火峡、黒鉄原野、噴風峡","肉食"],["クレストボア","甲岩獣種","土","黒鉄原野、暁砂原","昆虫食、鉱物食"],["セリュエルン","氷獣種","水","氷瀾界","植物食、氷食"],["フレイムクラウン","焔竜種","火","紅蓮の脈核","肉食、鉱物食"],["ゼフィローク","嵐鳥種","風","浮嶺帯","肉食"],["グラシオネイド","潮鯨種","水","サロリア海","プランクトン"],["シロックス","纏晶獣種","土・水","翠穣圏の湿地帯、霧潮群島","肉食、昆虫食"],["バブロヴァ","霊長植種","土・水","翠穣圏の水脈が通る森林地帯","果実・昆虫食、光合成、水分補給"],["アウロメドゥサ","風刺胞種","風","浮嶺帯、噴風峡、霧潮群島","元素食"],["クライドル","空棲鉱獣種","土・風","噴風峡、浮嶺帯、噴火峡","肉食、鉱物食"],["フラッドコブラ","爬水種","水","翠穣圏全域","肉食"],["モイストバンプ","泥蛙種","水・土","翠穣圏全域","昆虫食"]].map(a=>({name:a[0],classification:a[1],elements:a[2],habitats:a[3],diet:a[4],body:"",ecology:"",ability:"",related:"",note:"",gallery:[],logs:[]})),
+regions:[
+["紅蓮の脈核","火","世界の熱源であり、噴火の中心。"],["黒鉄原野","火・土","冷え固まったマグマが金属質へと変化した黒い大地。"],["噴火峡","火・風","地底のマグマと強風がぶつかる大峡谷。"],["噴風峡","土・風","強烈な風が岩盤を削る断崖地帯。"],["暁砂原","土・風","風と砂が織りなす赤砂の原野。"],["翠穣圏","土・水","森・湿原・草原が層状に展開する生命圏。"],["氷瀾界","水","世界の最南端に広がる氷原と氷海。"],["霧潮群島","水・風","濃霧と強風に覆われた群島列。"],["焔霧境","火・水","溶岩流と地下水が交錯する湿熱地帯。"],["浮嶺帯","風","サロリア海上空に広がる浮島群。"],["サロリア海","水","PrimalSphere中央部に広がる海域。"]
+].map(a=>({name:a[0],element:a[1],summary:a[2]}))};
+let db=JSON.parse(localStorage.getItem("psdb")||JSON.stringify(init)), selected="", tmpG=[], tmpL=[];
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function split(s){return (s||"").split(/[、,]/).map(x=>x.trim()).filter(Boolean)}
+function persist(){localStorage.setItem("psdb",JSON.stringify(db));counts()}
+function counts(){cc.textContent=db.creatures.length;rc.textContent=[...new Set([...db.regions.map(r=>r.name),...db.creatures.flatMap(c=>split(c.habitats))])].length}
+function page(id){["home","creatures","regions","editor"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");if(id=="creatures")renderList();if(id=="regions")renderRegions();counts()}
+function renderList(){let q=(search.value||"").toLowerCase();list.innerHTML="";db.creatures.filter(c=>[c.name,c.classification,c.elements,c.habitats,c.diet].join(" ").toLowerCase().includes(q)).forEach(c=>{let d=document.createElement("div");d.className="card";d.innerHTML=`<div class=name>${esc(c.name)}</div><div class=meta>${esc(c.classification)} / ${esc(c.elements)}</div>`;d.onclick=()=>show(c.name);list.appendChild(d)})}
+function show(n){let c=db.creatures.find(x=>x.name==n);if(!c)return;selected=n;let gal=(c.gallery||[]).map(g=>`<div class=gitem>${g.data?`<img src="${g.data}">`:""}<b>${esc(g.title||"資料")}</b><div class=small>${esc(g.desc||"")}</div></div>`).join("")||"<p class=small>資料なし</p>";let logs=(c.logs||[]).map(l=>`<div class=log><b>${esc(l.date)}</b><br>${esc(l.text)}</div>`).join("")||"<p class=small>記録なし</p>";detail.innerHTML=`<h2>${esc(c.name)}</h2><div class=meta>${esc(c.classification)}</div><div class=kv><b>元素適性</b><div>${esc(c.elements)}</div></div><div class=kv><b>生息地</b><div>${split(c.habitats).map(h=>`<span class=tag>${esc(h)}</span>`).join("")}</div></div><div class=kv><b>食性</b><div>${esc(c.diet)}</div></div><div class=section><h3>身体的構造</h3><p>${esc(c.body||"未記入")}</p></div><div class=section><h3>生態・習性</h3><p>${esc(c.ecology||"未記入")}</p></div><div class=section><h3>能力</h3><p>${esc(c.ability||"未記入")}</p></div><div class=section><h3>関連生物</h3><p>${esc(c.related||"未記入")}</p></div><div class=section><h3>資料ギャラリー</h3><div class=gallery>${gal}</div></div><div class=section><h3>観察日記</h3>${logs}</div><div class=section><h3>備考</h3><p>${esc(c.note||"未記入")}</p></div><button onclick="edit('${esc(c.name)}')">編集</button>`}
+function edit(n){let c=db.creatures.find(x=>x.name==n);if(!c)return;selected=n;f_name.value=c.name;f_class.value=c.classification;f_elem.value=c.elements;f_hab.value=c.habitats;f_diet.value=c.diet;f_body.value=c.body||"";f_eco.value=c.ecology||"";f_abil.value=c.ability||"";f_rel.value=c.related||"";f_note.value=c.note||"";tmpG=JSON.parse(JSON.stringify(c.gallery||[]));tmpL=JSON.parse(JSON.stringify(c.logs||[]));renderG();renderL();page("editor")}
+function clearForm(){selected="";["f_name","f_class","f_elem","f_hab","f_diet","f_body","f_eco","f_abil","f_rel","f_note"].forEach(id=>document.getElementById(id).value="");tmpG=[];tmpL=[];renderG();renderL()}
+function saveCreature(){if(!f_name.value.trim()){alert("名前は必須です");return}let c={name:f_name.value.trim(),classification:f_class.value.trim(),elements:f_elem.value.trim(),habitats:f_hab.value.trim(),diet:f_diet.value.trim(),body:f_body.value,ecology:f_eco.value,ability:f_abil.value,related:f_rel.value,note:f_note.value,gallery:tmpG,logs:tmpL};let i=db.creatures.findIndex(x=>x.name==(selected||c.name));if(i>=0)db.creatures[i]=c;else db.creatures.push(c);selected=c.name;persist();alert("保存しました");renderList()}
+function delCreature(){if(!selected){alert("削除する生物を選択してください");return}if(confirm(selected+"を削除しますか？")){db.creatures=db.creatures.filter(x=>x.name!=selected);persist();clearForm();alert("削除しました")}}
+function addGallery(){let file=g_file.files[0], title=g_title.value, desc=g_desc.value;if(!file&&!title){alert("資料名または画像を入れてください");return}if(file){let r=new FileReader();r.onload=()=>{tmpG.push({title,desc,data:r.result});renderG()};r.readAsDataURL(file)}else{tmpG.push({title,desc,data:""});renderG()}g_title.value="";g_desc.value="";g_file.value=""}
+function renderG(){g_edit.innerHTML=tmpG.map((g,i)=>`<div class=gitem>${g.data?`<img src="${g.data}">`:""}<b>${esc(g.title||"資料")}</b><div class=small>${esc(g.desc||"")}</div><button class=danger onclick="tmpG.splice(${i},1);renderG()">削除</button></div>`).join("")}
+function addLog(){if(!l_date.value&&!l_text.value){alert("日付または記録を入れてください");return}tmpL.push({date:l_date.value,text:l_text.value});l_date.value="";l_text.value="";renderL()}
+function renderL(){l_edit.innerHTML=tmpL.map((l,i)=>`<div class=log><b>${esc(l.date)}</b><br>${esc(l.text)}<br><button class=danger onclick="tmpL.splice(${i},1);renderL()">削除</button></div>`).join("")}
+function renderRegions(){regionList.innerHTML="";let names=[...new Set([...db.regions.map(r=>r.name),...db.creatures.flatMap(c=>split(c.habitats))])];names.forEach(n=>{let r=db.regions.find(x=>x.name==n)||{name:n,element:"",summary:""};let lives=db.creatures.filter(c=>split(c.habitats).includes(n)).map(c=>c.name);let d=document.createElement("div");d.className="card";d.innerHTML=`<div class=name>${esc(n)}</div><div class=meta>主要元素：${esc(r.element||"未設定")}</div><p>${esc(r.summary||"概要未設定")}</p><b>生息生物</b><br>${lives.length?lives.map(x=>`<span class=tag>${esc(x)}</span>`).join(""):"<span class=small>登録なし</span>"}`;regionList.appendChild(d)})}
+function saveFile(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="primalsphere_data.json";a.click()}
+function loadFile(e){let file=e.target.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);persist();renderList();renderRegions();alert("読み込みました")}catch(err){alert("読み込み失敗："+err.message)}};r.readAsText(file)}
+counts();renderList();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+  });
+}
+</script>
+
+</body></html>
