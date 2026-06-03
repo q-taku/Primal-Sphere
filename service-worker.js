@@ -1,4 +1,4 @@
-const CACHE_NAME = "primalsphere-v1-1";
+const CACHE_NAME = "primalsphere-v1-2";
 const FILES = [
   "./",
   "./index.html",
